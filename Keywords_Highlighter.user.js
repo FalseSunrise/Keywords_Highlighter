@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keywords Highlighter
 // @namespace    https://github.com/FalseSunrise
-// @version      2.0.0
+// @version      2.0.1
 // @description  Simple keywords and PhD highlighter that works on every web page
 // @author       FalseSunrise
 // @match        *://*/*
@@ -73,20 +73,34 @@
             let newKeywordsKeys = Object.keys(newValue)
             let oldKeywordsKeys = Object.keys(oldValue)
 
-            oldKeywordsKeys.forEach((keywordKey) => {
+            oldKeywordsKeys.forEach((keywordKey) => {// Remove keyword
                 if (!newKeywordsKeys.includes(keywordKey)) {
                     removeKeyword(keywordKey)
                 }
             })
-            newKeywordsKeys.forEach((keywordKey) => {
+            newKeywordsKeys.forEach((keywordKey) => {// Update keyword
                 if (!oldKeywordsKeys.includes(keywordKey)) {
                     updateLabel(keywordKey)
                     setKeywordsList();
                     adjustFrameSize();
                     updateMaxCount(keywordKey)
-                } else if (newValue[keywordKey != oldValue[keywordKey]]) {
-                    removeKeyword(keywordKey)
+                } else if (newValue[keywordKey] != oldValue[keywordKey]) {// Remove keyword
+                    if (currentlyFocusedKeyword == keywordKey) {
+                        currentlyFocusedKeyword = undefined
+                        updateFocusedCounter()
+                        setFocusInBox()
+                        removeFocus()
+                    }
+
+                    if (isHighlighted[keywordKey]) {
+                        let top = document.documentElement.scrollTop;
+                        removeHighlight(keywordKey);
+                        window.scrollTo({ top: top, behavior: 'instant'});
+                        isHighlighted[keywordKey] = false;
+                    }
+
                     updateLabel(keywordKey)
+                    currentlyFocusedIndeces[keywordKey] = 0;
                     setKeywordsList();
                     adjustFrameSize();
                     updateMaxCount(keywordKey)
@@ -100,6 +114,23 @@
         isRightPanelVisible: true,
         areUndefinedKeywordsVisible: true,
     });
+    GM_addValueChangeListener('boxProperties', (key, oldValue, newValue, remote) => {// Cross-tab box properties sync
+        if (remote){
+            boxProperties = newValue
+            if (newValue.isLeftPanelVisible != oldValue.isLeftPanelVisible) {
+                setLeftPanel()
+                adjustFrameSize()
+            }
+            if (newValue.isRightPanelVisible != oldValue.isRightPanelVisible) {
+                setRightPanel()
+                adjustFrameSize()
+            }
+            if (newValue.areUndefinedKeywordsVisible != oldValue.areUndefinedKeywordsVisible) {
+                setKeywordsList()
+                adjustFrameSize()
+            }
+        }
+    })
     let boxLastPos = GM_getValue('boxLastPos', ['0', '0', '0', '0']);
     let isBoxVisible = GM_getValue('isBoxVisible', true);
 
@@ -659,9 +690,18 @@ button.kwhlArrowBtn:hover {
 
 // Buttons click event handlers
     function enableButtons() {
-        leftArrowButton.onclick = () => {toggleLeftPanel()}
-        rightArrowButton.onclick = () => {toggleRightPanel()}
-        bottomArrowButton.onclick = () => {toggleFullList()}
+        leftArrowButton.onclick = () => {
+            toggleLeftPanel()
+            GM_setValue('boxProperties', boxProperties);// Store box properties info
+        }
+        rightArrowButton.onclick = () => {
+            toggleRightPanel()
+            GM_setValue('boxProperties', boxProperties);// Store box properties info
+        }
+        bottomArrowButton.onclick = () => {
+            toggleFullList()
+            GM_setValue('boxProperties', boxProperties);// Store box properties info
+        }
         phdBtn.onclick = () => {
             if (!isHighlighted.phd) {// Highlight PhD
                 highlightPhd();
@@ -703,19 +743,16 @@ button.kwhlArrowBtn:hover {
 
     function toggleLeftPanel() {
         boxProperties.isLeftPanelVisible = toggle(boxProperties.isLeftPanelVisible)
-        GM_setValue('boxProperties', boxProperties);// Store box properties info
         setLeftPanel();
         adjustFrameSize();
     }
     function toggleRightPanel() {
         boxProperties.isRightPanelVisible = toggle(boxProperties.isRightPanelVisible)
-        GM_setValue('boxProperties', boxProperties);// Store box properties info
         setRightPanel();
         adjustFrameSize();
     }
     function toggleFullList() {
         boxProperties.areUndefinedKeywordsVisible = toggle(boxProperties.areUndefinedKeywordsVisible)
-        GM_setValue('boxProperties', boxProperties);// Store box properties info
         setKeywordsList();
         adjustFrameSize();
     }
