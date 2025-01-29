@@ -5,13 +5,15 @@
 Install:  
 https://github.com/FalseSunrise/Keywords_Highlighter/raw/refs/heads/main/Keywords_Highlighter.user.js
 
-Description:
+## Description
 
 This tool can store up to 6 keywords and highlight them at the opened page similarly to the default browser's search tool (Ctrl + f). Additionally, it finds and highlights the following PhD-like strings in multiple languages:
 - "PhD", "Ph.D", "Ph. D", "Dr ", "Dr.", "Dr. rer. nat.", "Doctorate", "Doctor", "DSc", "D.Sc", "Doctor of Philosophy", "CSc.", 
 - "кандидат наук", "к.и.н", "доктор наук", "д.н", "доктор", "Кандидат технических наук", 
 - "博士", "dottore".
   
+## Usage
+
 Keywords are highlighted with distinct colours, and the currently focused keyword is outlined with bright magenta box. You can jump to the next found keyword using button or keyboard shortcut.
 
 ![407377529-40be3a27-9d85-4d97-a500-258b3c935209](https://github.com/user-attachments/assets/01e11b05-9e23-457d-a05e-0701752704bf)
@@ -30,7 +32,7 @@ If you use shortcuts, you can hide parts of interface to make the box smaller.
 - "⟩" and ⟨ hide circle buttons,
 - "︿" hides not used keywords.
   
-### Full list of actions:  
+## Full list of actions
 
 | Action                     | Box                                | Shortcut                                |
 |----------------------------|------------------------------------|-----------------------------------------|
