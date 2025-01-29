@@ -2,7 +2,7 @@
 
 ### Simple keywords and PhD highlighter that works on every web page
 
-Install:  
+Install using Tampermonkey or other userscript manager of yourchoice:  
 https://github.com/FalseSunrise/Keywords_Highlighter/raw/refs/heads/main/Keywords_Highlighter.user.js
 
 ## Description
@@ -14,24 +14,26 @@ This tool can store up to 6 keywords and highlight them at the opened page simil
   
 ## Usage
 
-Keywords are highlighted with distinct colours, and the currently focused keyword is outlined with bright magenta box. You can jump to the next found keyword using button or keyboard shortcut.
+Keywords are highlighted with distinct colours, and the currently focused keyword is outlined with a bright magenta box. You can jump to the next found keyword using a button or keyboard shortcut.
 
 ![407377529-40be3a27-9d85-4d97-a500-258b3c935209](https://github.com/user-attachments/assets/01e11b05-9e23-457d-a05e-0701752704bf)
 
-The draggable box interface lets you quickly check if given keyword is present on the page and its count. It also includes buttons that lets you manipulate stored keywords and navigate through the highlights.
+The draggable box interface lets you quickly check if a given keyword is present on the page and its count. You can drag the box by grabbing the "Keywords" title. It also includes buttons that let you manipulate stored keywords and navigate through the highlights.
 
 ![407373025-986df64d-dcc2-4865-9dec-705e2acc0f05](https://github.com/user-attachments/assets/cc7e094f-b6cf-4f7b-baba-0c87ff887c8b)
 
 You can also use shortcuts to perform actions faster:  
 - All shortcuts consist of pressing a combination of Alt (Win, Ctrl) and a corresponding Numpad number (1-6),
-- To show or hide the box interface press Alt + Numpad 7,
-- To show highlight all keywords simultaneously press Alt + Numpad 8,
-- To highlight PhD press Alt + Numpad 9.
+- To show or hide the box interface, press Alt + Numpad 7,
+- To show highlight all keywords simultaneously, press Alt + Numpad 8,
+- To highlight PhD, press Alt + Numpad 9.
 
-If you use shortcuts, you can hide parts of interface to make the box smaller.
+If you use shortcuts, you can hide parts of the interface to make the box smaller.
 - "⟩" and ⟨ hide circle buttons,
 - "︿" hides not used keywords.
-  
+
+![image](https://github.com/user-attachments/assets/6cf9e19d-61e9-4521-ac12-2bb6a0e7b896)
+
 ## Full list of actions
 
 | Action                     | Box                                | Shortcut                                |
