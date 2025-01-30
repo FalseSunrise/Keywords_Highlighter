@@ -2,7 +2,7 @@
 
 ### Simple keywords and PhD highlighter that works on every web page
 
-Install using Tampermonkey or other userscript manager of yourchoice:  
+Install using Tampermonkey or other userscript manager of your choice:  
 https://github.com/FalseSunrise/Keywords_Highlighter/raw/refs/heads/main/Keywords_Highlighter.user.js
 
 ## Description
