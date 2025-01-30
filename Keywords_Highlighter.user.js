@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keywords Highlighter
 // @namespace    https://github.com/FalseSunrise
-// @version      2.0.1
+// @version      2.0.2
 // @description  Simple keywords and PhD highlighter that works on every web page
 // @author       FalseSunrise
 // @match        *://*/*
@@ -138,6 +138,7 @@
     let iframeDiv = undefined
     let frame
     let iframeDocument
+    let iframeWindow
     let captionBar
     let keywordsList
     let leftPanelButtons
@@ -536,8 +537,12 @@ button.kwhlArrowBtn:hover {
         iframeDiv.append(fakeCaptionBar, frame)
         document.body.prepend(iframeDiv);
 
-// Get the loaded iframe document and its important elements
+        // Get the loaded iframe document and its important elements
         frame.addEventListener("load", function() {
+            // Add key up event listeners to the iframe window
+            iframeWindow = this.contentWindow;
+            addKeyupListeners(iframeWindow)
+
             iframeDocument = this.contentDocument;
             captionBar = iframeDocument.querySelector('#kwhlCaption');
             keywordsList = iframeDocument.querySelector('#kwhlList');
@@ -547,7 +552,7 @@ button.kwhlArrowBtn:hover {
             rightArrowButton = iframeDocument.querySelector('#kwhlrightArrowButton')
             bottomArrowButton = iframeDocument.querySelector('#kwhlBottomArrowButton')
             phdBtn = iframeDocument.querySelector('#kwhl-phd-label')
-// Call functions for box mechanics
+            // Call functions for box mechanics
             dragBox()
             setCaptionDummy()
             updateAllLabels()
@@ -816,120 +821,124 @@ button.kwhlArrowBtn:hover {
         box-shadow: 0 0 0 2px currentcolor, 0 0 0 5px #ff00ff;
     }`);
 
+// Add key up event listeners to the main window
+    addKeyupListeners(window)
 
 // Numpad key up event handlers
     let arr = [...Array(7).keys()].slice(1)// Array 1-6
 
-    window.addEventListener('keyup', (e) => {
-        let isWinPressed = e.metaKey || e.getModifierState("OS") || e.getModifierState("Super") || e.getModifierState("Win")// Get "Win" key state
+    function addKeyupListeners(el) {
+        el.addEventListener('keyup', (e) => {
+            let isWinPressed = e.metaKey || e.getModifierState("OS") || e.getModifierState("Super") || e.getModifierState("Win")// Get "Win" key state
 
-// Keys 1-6
-        arr.forEach((i) => {
-            let keywordKey = `k${i}`
+            // Keys 1-6
+            arr.forEach((i) => {
+                let keywordKey = `k${i}`
 
-            if (e.location===3 && e.altKey && isWinPressed && e.ctrlKey && e.key == i) {
-                // Remove keyword
-                removeKeyword(keywordKey);
-                GM_setValue('keywords', keywords)
-            } else if (e.location===3 && e.altKey && isWinPressed && !e.ctrlKey && e.key == i) {
-                // Add/replace keyword
-                replaceKeyword(keywordKey);
-                GM_setValue('keywords', keywords)
-            } else if (e.location===3 && e.altKey && !isWinPressed && !e.ctrlKey && e.key == i && !isHighlighted[keywordKey] && !e.ctrlKey) {
-                // Highlight keyword
-                highlightKeywordComplete(keywordKey);
-            } else if (e.location===3 && e.altKey && !isWinPressed && !e.ctrlKey && e.key == i && isHighlighted[keywordKey] && !e.ctrlKey) {
-                // Jump to next
-                jumpInDirection(keywordKey, 1);
-            } else if (e.location===3 && e.altKey && !isWinPressed && e.ctrlKey && e.key == i && isHighlighted[keywordKey]) {
-                // Unhighlight keyword
-                unhighlightKeywordComplete(keywordKey);
-            } else if (e.location===3 && e.altKey && !isWinPressed && e.ctrlKey && e.key == i && !isHighlighted[keywordKey]) {
-                log(`keyword ${keywordKey} is not highlighted`)
-            }
-        })
+                if (e.location===3 && e.altKey && isWinPressed && e.ctrlKey && e.key == i) {
+                    // Remove keyword
+                    removeKeyword(keywordKey);
+                    GM_setValue('keywords', keywords)
+                } else if (e.location===3 && e.altKey && isWinPressed && !e.ctrlKey && e.key == i) {
+                    // Add/replace keyword
+                    replaceKeyword(keywordKey);
+                    GM_setValue('keywords', keywords)
+                } else if (e.location===3 && e.altKey && !isWinPressed && !e.ctrlKey && e.key == i && !isHighlighted[keywordKey] && !e.ctrlKey) {
+                    // Highlight keyword
+                    highlightKeywordComplete(keywordKey);
+                } else if (e.location===3 && e.altKey && !isWinPressed && !e.ctrlKey && e.key == i && isHighlighted[keywordKey] && !e.ctrlKey) {
+                    // Jump to next
+                    jumpInDirection(keywordKey, 1);
+                } else if (e.location===3 && e.altKey && !isWinPressed && e.ctrlKey && e.key == i && isHighlighted[keywordKey]) {
+                    // Unhighlight keyword
+                    unhighlightKeywordComplete(keywordKey);
+                } else if (e.location===3 && e.altKey && !isWinPressed && e.ctrlKey && e.key == i && !isHighlighted[keywordKey]) {
+                    log(`keyword ${keywordKey} is not highlighted`)
+                }
+            })
 
-// Alt + 7 key up event handler - toggle box visibility
-        if (e.location===3 && e.altKey && e.key == '7') {
-            if (!isBoxVisible){
-                isBoxVisible = true;
-                // Check if box exists, initialize if needed
-                if (iframeDiv == undefined) {
-                    initializeBox();
+            // Alt + 7 key up event handler - toggle box visibility
+            if (e.location===3 && e.altKey && e.key == '7') {
+                if (!isBoxVisible){
+                    isBoxVisible = true;
+                    // Check if box exists, initialize if needed
+                    if (iframeDiv == undefined) {
+                        initializeBox();
+                    } else {
+                        iframeDiv.style.display = 'inline';
+                        // Check if box is visible and move if necessary
+                        resetPos();
+                    }
+                    // Store info if box should be visible
+                    GM_setValue('isBoxVisible', isBoxVisible);
                 } else {
-                    iframeDiv.style.display = 'inline';
-                    // Check if box is visible and move if necessary
-                    resetPos();
+                    isBoxVisible = false;
+                    iframeDiv.style.display = 'none';
+                    // Store info if box should be visible
+                    GM_setValue('isBoxVisible', isBoxVisible);
                 }
-                // Store info if box should be visible
-                GM_setValue('isBoxVisible', isBoxVisible);
-            } else {
-                isBoxVisible = false;
-                iframeDiv.style.display = 'none';
-                // Store info if box should be visible
-                GM_setValue('isBoxVisible', isBoxVisible);
-            }
-        }
-
-// Alt + 8 key up event handler - affects keywords 1-6 all at once
-        if (e.location===3 && e.altKey && !e.ctrlKey && !isWinPressed && e.key == '8') {
-            // Highlight all keywords
-            Object.keys(keywords).forEach((keywordKey) => {
-                if (!isHighlighted[keywordKey]){
-                    highlightKeyword(keywordKey)
-                };
-            })
-            updateAllMaxCounts()
-            setPhdButtonColor();
-        } else if (e.location===3 && e.altKey && e.key == '8' && e.ctrlKey && !isWinPressed){
-            // Unhighlight all keywords
-            Object.keys(keywords).forEach((keywordKey) => {
-                unhighlightKeywordComplete(keywordKey)
-            })
-        } else if (e.location===3 && e.altKey && e.key == '8' && e.ctrlKey && isWinPressed){
-            // Remove all keywords
-            if (currentlyFocusedKeyword != 'phd') {
-                currentlyFocusedKeyword = undefined
-                updateFocusedCounter()
-                removeFocus()
             }
 
-            Object.keys(keywords).forEach((keywordKey) => {
-                let id = `#kwhl-${keywordKey}-count`
-
-                if (isHighlighted[keywordKey]) {
-                    let top = document.documentElement.scrollTop;// Get current viewport position on page
-                    removeHighlight(keywordKey);
-                    window.scrollTo({ top: top, behavior: 'instant'});
-                    isHighlighted[keywordKey] = false;
+            // Alt + 8 key up event handler - affects keywords 1-6 all at once
+            if (e.location===3 && e.altKey && !e.ctrlKey && !isWinPressed && e.key == '8') {
+                // Highlight all keywords
+                Object.keys(keywords).forEach((keywordKey) => {
+                    if (!isHighlighted[keywordKey]){
+                        highlightKeyword(keywordKey)
+                    };
+                })
+                updateAllMaxCounts()
+                setPhdButtonColor();
+            } else if (e.location===3 && e.altKey && e.key == '8' && e.ctrlKey && !isWinPressed){
+                // Unhighlight all keywords
+                Object.keys(keywords).forEach((keywordKey) => {
+                    unhighlightKeywordComplete(keywordKey)
+                })
+            } else if (e.location===3 && e.altKey && e.key == '8' && e.ctrlKey && isWinPressed){
+                // Remove all keywords
+                if (currentlyFocusedKeyword != 'phd') {
+                    currentlyFocusedKeyword = undefined
+                    updateFocusedCounter()
+                    removeFocus()
                 }
 
-                keywords[keywordKey] = undefined;
-                updateLabel(keywordKey)
-                currentlyFocusedIndeces[keywordKey] = 0;
-                updateMaxCount(keywordKey)
-                log(`keyword ${keywordKey} removed`);
-            })
-            GM_setValue('keywords', keywords);
-            setKeywordsList();
-            adjustFrameSize();
-            setPhdButtonColor();
-        }
+                Object.keys(keywords).forEach((keywordKey) => {
+                    let id = `#kwhl-${keywordKey}-count`
 
-// Alt + 9 key up event handler - highlight PhD
-        if (e.location===3 && e.altKey && !e.ctrlKey && e.key == '9' && !isHighlighted.phd) {
-            // Highlight PhD
-            highlightPhd();
-            setPhdButtonColor();
-        } else if (e.location===3 && e.altKey && !e.ctrlKey && e.key == '9' && isHighlighted.phd) {
-            // Jump to next
-            jumpInDirection('phd', 1)
-        } else if (e.location===3 && e.altKey && e.ctrlKey && e.key == '9') {
-            // Unhighlight PhD
-            unhighlightKeywordComplete('phd');
-        }
+                    if (isHighlighted[keywordKey]) {
+                        let top = document.documentElement.scrollTop;// Get current viewport position on page
+                        removeHighlight(keywordKey);
+                        window.scrollTo({ top: top, behavior: 'instant'});
+                        isHighlighted[keywordKey] = false;
+                    }
 
-    }, false);
+                    keywords[keywordKey] = undefined;
+                    updateLabel(keywordKey)
+                    currentlyFocusedIndeces[keywordKey] = 0;
+                    updateMaxCount(keywordKey)
+                    log(`keyword ${keywordKey} removed`);
+                })
+                GM_setValue('keywords', keywords);
+                setKeywordsList();
+                adjustFrameSize();
+                setPhdButtonColor();
+            }
+
+            // Alt + 9 key up event handler - highlight PhD
+            if (e.location===3 && e.altKey && !e.ctrlKey && e.key == '9' && !isHighlighted.phd) {
+                // Highlight PhD
+                highlightPhd();
+                setPhdButtonColor();
+            } else if (e.location===3 && e.altKey && !e.ctrlKey && e.key == '9' && isHighlighted.phd) {
+                // Jump to next
+                jumpInDirection('phd', 1)
+            } else if (e.location===3 && e.altKey && e.ctrlKey && e.key == '9') {
+                // Unhighlight PhD
+                unhighlightKeywordComplete('phd');
+            }
+
+        }, false);
+    }
 
 
 // Core functions
