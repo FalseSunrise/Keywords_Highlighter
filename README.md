@@ -50,3 +50,16 @@ If you use shortcuts, you can hide parts of the interface to make the box smalle
 | Highlight all keywords     | –                                  | Alt + Numpad 8                          |
 | Unhighlight all keywords   | –                                  | Alt + Ctrl + Numpad 8                   |
 | Remove all stored keywords | –                                  | Alt + Win + Ctrl + 8                    |
+
+## Quick install
+
+- Get Tampermonkey extension for your browser:<br>
+https://www.tampermonkey.net/
+
+- Click the link below and let Tampermonkey install the script:<br>
+https://github.com/FalseSunrise/Keywords_Highlighter/raw/refs/heads/main/Keywords_Highlighter.user.js
+
+- Make sure the script is enabled in Tampermonkey:<br>
+![image](https://github.com/user-attachments/assets/3a1a2e9a-2fa9-4ff4-aab2-8a9b0288c490)
+
+- If the box interface is not visible press Alt + Numpad 7.
